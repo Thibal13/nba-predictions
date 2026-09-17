@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NBA Predictions 2026–27 · V2.8.1</title>
+<style>
+:root{
+  --bg:#07111f; --panel:#0d1b2d; --panel2:#10243a; --line:#203751;
+  --text:#f5f7fb; --muted:#93a7bc; --accent:#4da3ff; --gold:#f4c95d;
+  --green:#28c76f; --orange:#ff9f43; --red:#ff5c5c; --shadow:0 18px 45px rgba(0,0,0,.28);
+}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(circle at 50% -10%,#173453 0,#07111f 45%);color:var(--text);font-family:Inter,Segoe UI,Arial,sans-serif}
+button,input,select{font:inherit}
+button{cursor:pointer}
+.app{max-width:1700px;margin:auto;padding:28px 22px 60px}
+.hero{text-align:center;padding:18px 0 26px}
+.kicker{letter-spacing:.22em;text-transform:uppercase;color:var(--accent);font-weight:800;font-size:12px}
+h1{font-size:clamp(34px,5vw,64px);margin:8px 0 4px;letter-spacing:-.04em}
+.subtitle{color:var(--muted);margin:0 auto;max-width:760px}
+.toolbar{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:20px 0}
+.btn{border:1px solid var(--line);background:var(--panel2);color:#fff;padding:11px 16px;border-radius:12px;font-weight:800}
+.btn:hover{filter:brightness(1.15)}
+.btn.primary{background:linear-gradient(135deg,#2f8cff,#6a5cff);border:0}
+.btn.gold{background:linear-gradient(135deg,#b98520,#f4c95d);color:#111;border:0}
+.brand-note{margin-top:10px;font-size:11px;color:#9fb0c3;line-height:1.5}.brand-note strong{color:#fff}.howto{margin-top:14px;padding:14px 16px;border:1px solid #29445e;background:#0b1726;border-radius:12px}.howto h3{margin:0 0 8px;font-size:14px}.howto-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.howto-step{padding:9px;border-radius:9px;background:#0e2033;border:1px solid #1d344b;font-size:11px}.howto-step b{display:block;color:#f4c95d;margin-bottom:3px}.share-box{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px}.share-status{font-size:11px;color:#9fb0c3}
+.section{background:rgba(13,27,45,.88);border:1px solid var(--line);border-radius:20px;padding:20px;margin-top:22px;box-shadow:var(--shadow)}
+.section-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:15px}
+.section h2{margin:0;font-size:24px}
+.note{color:var(--muted);font-size:13px}
+.legend{display:flex;gap:10px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+.legend span{display:flex;align-items:center;gap:6px}.dot{width:10px;height:10px;border-radius:50%}.dot.green{background:var(--green)}.dot.orange{background:var(--orange)}
+.conferences{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.conf{background:#091727;border:1px solid var(--line);border-radius:18px;padding:14px}
+.conf-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.conf-title h3{margin:0}.conf-title small{color:var(--muted)}
+.rank-list{display:flex;flex-direction:column;gap:7px}
+.team-card{display:grid;grid-template-columns:34px 42px 1fr auto;align-items:center;gap:10px;padding:9px 10px;border:1px solid #1d334b;background:#0d1d30;border-radius:12px;transition:.15s transform,.15s background,.15s border-color}
+.team-card:hover{border-color:#355a7d}
+.team-card.dragging{opacity:.45;transform:scale(.98)}
+.team-card.playoffs{border-left:4px solid var(--green)}
+.team-card.playin{border-left:4px solid var(--orange)}
+.rank{font-weight:900;color:#8ea5bb;text-align:center}
+.logo{width:38px;height:38px;object-fit:contain}
+.team-name{font-weight:800}.seed-tag{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.badge{font-size:10px;padding:5px 7px;border-radius:99px;font-weight:900;white-space:nowrap}
+.badge.green{background:rgba(40,199,111,.14);color:#62e89b}.badge.orange{background:rgba(255,159,67,.14);color:#ffb66d}
+.empty{border:1px dashed #29445e;border-radius:12px;padding:15px;color:var(--muted);text-align:center}
+.playin-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.playin-result{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid #203751}
+.playin-result>div{background:#07111f;border-radius:10px;padding:9px}
+.result-label{display:block;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px}
+.playin-result strong{display:flex;align-items:center;gap:6px;font-size:12px}
+.result-zero{font-weight:900;color:#61758a;min-width:16px;text-align:center}
+
+.draft-layout{display:grid;grid-template-columns:145px 1fr;gap:12px;align-items:start}
+.east-layout{grid-template-columns:1fr 145px}
+.reserve-panel{background:#07111f;border:1px solid #1a3047;border-radius:14px;padding:9px;min-height:650px}
+.reserve-title{font-size:10px;letter-spacing:.12em;color:var(--muted);font-weight:900;text-align:center;margin:2px 0 9px}
+.reserve-grid{display:grid;grid-template-columns:1fr;gap:7px}
+.reserve-card{display:flex;align-items:center;gap:6px;padding:7px;border:1px solid #203751;background:#0d1d30;border-radius:10px;cursor:grab}
+.reserve-card:active{cursor:grabbing}
+.reserve-card.selected{border-color:var(--accent);background:rgba(77,163,255,.14);box-shadow:0 0 0 2px rgba(77,163,255,.18)}
+.js-ready .js-fallback-note{display:none}.js-fallback-note{display:block;color:#8fb5d8;font-size:10px;text-align:center;margin:0 0 7px}.mobile-hint{display:none;color:#8fb5d8;font-size:11px;text-align:center;margin:0 0 8px}
+@media(max-width:900px){.draft-layout,.east-layout{grid-template-columns:1fr}.reserve-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.reserve-panel{min-height:0}}
+@media(max-width:650px){.howto-grid{grid-template-columns:1fr 1fr}.brand-note{font-size:10px}.mobile-hint{display:block}}
+.reserve-card.dragging{opacity:.4}
+.reserve-card img{width:30px;height:30px;object-fit:contain}
+.reserve-card span{font-size:11px;font-weight:800;line-height:1.1;min-width:0;overflow-wrap:anywhere}
+.drop-slot{min-height:56px;border:1px dashed #29445e;background:rgba(7,17,31,.72);border-radius:12px;display:grid;grid-template-columns:34px 1fr;align-items:center;gap:8px;padding:6px}
+.drop-slot.hover{border-color:var(--accent);background:rgba(77,163,255,.10)}
+.drop-slot.filled{border-style:solid}
+.drop-slot.no-post{opacity:.62}
+.drop-slot .slot-number{font-weight:900;color:#7189a0;text-align:center}
+.slot-placeholder{font-size:12px;color:#50677d}
+.slot-team{display:flex;align-items:center;gap:8px;font-weight:800}
+.slot-team img{width:34px;height:34px;object-fit:contain}
+.logo-fallback{width:34px;height:34px;display:grid;place-items:center;border-radius:50%;background:#18314a;color:#b9d9f7;font-size:9px;font-weight:900;flex:0 0 34px}.reserve-card .logo-fallback{width:34px;height:34px;flex-basis:34px;font-size:9px}.logo-wrap{width:34px;height:34px;position:relative;display:grid;place-items:center;flex:0 0 34px}.logo-wrap img{width:34px;height:34px;object-fit:contain;position:absolute;inset:0}.logo-wrap .logo-fallback{position:absolute;inset:0}
+@media(max-width:1200px){.draft-layout,.east-layout{grid-template-columns:1fr}.reserve-panel{min-height:0}.reserve-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:650px){.howto-grid{grid-template-columns:1fr 1fr}.brand-note{font-size:10px}
+  /* Mobile: keep the reserve immediately visible above the ranking.
+     This avoids the reserve being pushed far below the 15 ranking slots on iPhone. */
+  .draft-layout,.east-layout{display:flex;flex-direction:column;gap:10px}
+  .reserve-panel{order:-1;min-height:0;width:100%;display:block;visibility:visible;opacity:1}
+  .rank-panel{order:2;width:100%;min-width:0}
+  .reserve-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;width:100%}
+  .reserve-card{min-height:58px;padding:8px;touch-action:none;-webkit-tap-highlight-color:rgba(77,163,255,.18);user-select:none;-webkit-user-select:none}.reserve-card.pointer-dragging{opacity:.55;transform:scale(.98);box-shadow:0 0 0 2px rgba(77,163,255,.35)}
+  .reserve-card img{width:34px;height:34px}
+  .reserve-card span{font-size:10px}
+  .drop-slot{min-height:60px}
+  .slot-team img{width:36px;height:36px}
+}
+
+.playin-conf{background:#091727;border:1px solid var(--line);border-radius:16px;padding:15px}
+.matchup{background:#0d1d30;border:1px solid #203751;border-radius:14px;padding:12px;margin:9px 0}
+.matchup-head{display:flex;justify-content:space-between;color:var(--muted);font-size:11px;text-transform:uppercase}
+.match-team{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px;border-radius:10px}
+.match-team.selected{background:rgba(77,163,255,.14);outline:1px solid rgba(77,163,255,.4)}
+.match-team button{border:0;background:transparent;color:#fff;text-align:left;display:flex;align-items:center;gap:8px;font-weight:800;flex:1}
+.small-logo{width:28px;height:28px;object-fit:contain}
+.winner{color:#7bc0ff;font-weight:900}
+.bracket-wrap{overflow-x:auto;padding-bottom:8px}
+.bracket{width:max-content;min-width:1350px;display:grid;grid-template-columns:repeat(6,210px);gap:16px;align-items:stretch}
+.round{display:flex;flex-direction:column;gap:16px}
+.round h3{text-align:center;font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin:0 0 2px}
+.series{background:#091727;border:1px solid var(--line);border-radius:14px;padding:9px}
+.series .team{display:flex;align-items:center;gap:7px;padding:7px;border-radius:8px}
+.series .team.active{background:rgba(40,199,111,.10);outline:1px solid rgba(40,199,111,.25)}
+.series .team button{border:0;background:none;color:#fff;display:flex;align-items:center;gap:7px;font-weight:800;flex:1;text-align:left}
+.score{width:32px;height:30px;border-radius:8px;border:1px solid #29445e;background:#07111f;color:#fff;text-align:center;font-weight:900}
+.score:disabled{opacity:.45}
+.series-note{text-align:center;color:var(--muted);font-size:10px;margin-top:6px}
+.final-box{border:1px solid rgba(244,201,93,.55);background:linear-gradient(180deg,rgba(244,201,93,.10),rgba(9,23,39,.9));padding:16px;border-radius:18px;text-align:center}
+.champion-logo{width:90px;height:90px;object-fit:contain}.champion{font-size:26px;font-weight:950;margin-top:5px}
+.awards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.award{background:#091727;border:1px solid var(--line);border-radius:16px;padding:15px;position:relative}
+.award h3{font-size:14px;margin:0 0 10px}.award-controls{display:grid;grid-template-columns:1fr;gap:8px}
+.award input{width:100%;background:#07111f;border:1px solid #29445e;color:#fff;padding:10px;border-radius:9px;outline:none}
+.player-search{position:relative}
+.player-suggestions{position:absolute;left:0;right:0;top:100%;z-index:20;background:#0b1b2d;border:1px solid #31506d;border-radius:10px;overflow:hidden;box-shadow:var(--shadow)}
+.player-suggestion{display:flex;align-items:center;gap:9px;width:100%;border:0;border-bottom:1px solid #1d334b;background:#0b1b2d;color:#fff;text-align:left;padding:9px;cursor:pointer}
+.player-suggestion:last-child{border-bottom:0}.player-suggestion:hover{background:#14304a}
+.suggestion-photo{width:34px;height:34px;border-radius:50%;object-fit:cover;background:#172b42}
+.award-status{font-size:10px;color:var(--muted);margin-top:7px}
+.player-card{display:flex;gap:12px;align-items:center;margin-top:12px;padding:10px;border-radius:12px;background:#0d1d30;min-height:72px}
+.player-photo{width:58px;height:58px;border-radius:50%;object-fit:cover;background:#172b42}.player-info strong{display:block}.player-info small{color:var(--muted)}
+
+.summary-toolbar{display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap;margin:18px 0}
+.name-input{background:#07111f;border:1px solid #29445e;color:#fff;padding:11px 14px;border-radius:11px;min-width:230px}
+.summary{display:none;background:#fff;color:#111;border-radius:18px;padding:22px;margin-top:22px;overflow:hidden}
+.summary h2,.summary h3{color:#111}
+.summary-page{background:#fff;color:#111;border:1px solid #d9dfe5;border-radius:14px;padding:22px;min-height:760px;position:relative}
+.summary-page + .summary-page{margin-top:18px}
+.summary-header{display:flex;justify-content:space-between;gap:20px;align-items:flex-end;border-bottom:2px solid #15263a;padding-bottom:10px}
+.summary-kicker{font-size:10px;letter-spacing:.16em;font-weight:900;color:#64748b;text-transform:uppercase}
+.summary-title{font-size:25px;font-weight:950;letter-spacing:-.03em;margin-top:3px}
+.summary-name{font-size:14px;font-weight:900;margin-top:4px}
+.summary-date{font-size:10px;color:#64748b}
+.summary-board-title{text-align:center;font-size:19px;font-weight:950;letter-spacing:.08em;text-transform:uppercase;margin:12px 0 2px}
+.summary-board-sub{text-align:center;color:#64748b;font-size:9px;margin-bottom:12px}
+.summary-bracket-board{display:grid;grid-template-columns:1fr 82px 1fr;gap:14px;align-items:stretch}
+.summary-side{display:grid;grid-template-columns:1.15fr 1fr .95fr;gap:8px;min-width:0}
+.summary-side.east{grid-template-columns:.95fr 1fr 1.15fr}
+.summary-round{display:flex;flex-direction:column;gap:9px;min-width:0}
+.summary-round h4{font-size:8px;letter-spacing:.10em;text-transform:uppercase;color:#64748b;text-align:center;margin:0 0 1px}
+.summary-round.r1 .summary-series{min-height:65px}
+.summary-round.r2{padding-top:37px}
+.summary-round.r2 .summary-series{min-height:81px;margin-bottom:27px}
+.summary-round.r3{padding-top:94px}
+.summary-round.r3 .summary-series{min-height:92px}
+.summary-side.east .summary-round.r2{padding-top:37px}
+.summary-side.east .summary-round.r3{padding-top:94px}
+.summary-series{border:1px solid #cfd7df;border-radius:8px;padding:6px;background:#fff;box-shadow:0 1px 2px rgba(15,23,42,.05);font-size:8.5px;min-width:0}
+.summary-series .series-team{display:flex;align-items:center;gap:4px;min-height:22px;padding:2px 3px;border-radius:5px}
+.summary-series .series-team.winner{background:#eef8f1;font-weight:900}
+.summary-series .series-team img{width:18px;height:18px;object-fit:contain;flex:0 0 18px}
+.summary-series .series-team .series-seed{width:11px;color:#64748b;font-size:7px;text-align:center;flex:0 0 11px}
+.summary-series .series-team .series-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+.summary-series .series-score{font-weight:950;font-size:10px;margin-left:auto}
+.summary-series .series-note{font-size:7px;color:#64748b;margin-top:3px;padding-top:3px;border-top:1px solid #edf0f2}
+.summary-finals{border:1px solid #d5b34b;border-radius:10px;background:linear-gradient(180deg,#fffdf2,#fff);display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:260px;text-align:center;padding:8px}
+.summary-finals .finals-label{font-size:8px;letter-spacing:.13em;text-transform:uppercase;color:#9a7615;font-weight:950}
+.summary-finals .finals-logo{width:42px;height:42px;object-fit:contain;margin:9px 0}
+.summary-finals .finals-vs{font-size:9px;font-weight:950;color:#64748b;margin:3px 0}
+.summary-finals .finals-team{font-size:9px;font-weight:900;line-height:1.15}
+.summary-finals .champion{font-size:11px;font-weight:950;margin-top:12px;padding-top:9px;border-top:1px solid #eadb9f;width:100%}
+.summary-playin{margin-top:12px;border-top:1px solid #d9dfe5;padding-top:10px}
+.summary-playin-title{text-align:center;font-size:9px;letter-spacing:.10em;text-transform:uppercase;font-weight:950;margin-bottom:7px}
+.summary-playin-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.summary-playin-conf{border:1px solid #d9dfe5;border-radius:8px;padding:7px}
+.summary-playin-conf h4{font-size:8px;margin:0 0 5px;text-transform:uppercase;letter-spacing:.08em}
+.summary-playin-line{font-size:7.5px;line-height:1.45;color:#475569}
+.summary-playin-line strong{color:#111}
+.summary-page-two{page-break-before:always}
+.summary-section-title{font-size:16px;font-weight:950;letter-spacing:-.02em;margin:0 0 10px}
+.summary-rankings{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.summary-rank-card{border:1px solid #d9dfe5;border-radius:10px;padding:10px}
+.summary-rank-card h3{font-size:11px;margin:0 0 7px;padding-bottom:5px;border-bottom:2px solid #15263a}
+.summary-rank{display:grid;grid-template-columns:20px 22px 1fr 48px;gap:5px;font-size:8.5px;align-items:center;min-height:19px;border-bottom:1px solid #edf0f2}
+.summary-rank:last-child{border-bottom:0}
+.summary-rank .rank-num{font-weight:950;color:#64748b;text-align:center}
+.summary-rank img{width:18px;height:18px;object-fit:contain}
+.summary-rank .rank-name{font-weight:750;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.summary-rank .rank-status{text-align:right;color:#64748b;font-size:7px;font-weight:800}
+.summary-awards-block{margin-top:14px}
+.summary-awards{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+.summary-award{border:1px solid #d9dfe5;border-radius:8px;padding:7px;font-size:8px;min-height:48px;background:#fff}
+.summary-award strong{display:block;font-size:8px;margin-bottom:3px}.summary-award span{font-weight:800}.summary-award small{display:block;color:#64748b;margin-top:2px;font-size:7px}
+.summary-footer{font-size:7px;color:#64748b;margin-top:12px;text-align:center}
+@media(max-width:1000px){.summary-bracket-board{grid-template-columns:1fr}.summary-finals{min-height:150px}.summary-side,.summary-side.east{grid-template-columns:1fr}.summary-round.r2,.summary-round.r3,.summary-side.east .summary-round.r2,.summary-side.east .summary-round.r3{padding-top:0}.summary-round.r2 .summary-series{margin-bottom:0}.summary-rankings{grid-template-columns:1fr}.summary-awards{grid-template-columns:1fr 1fr}}
+@media(max-width:650px){.howto-grid{grid-template-columns:1fr 1fr}.brand-note{font-size:10px}.summary{padding:10px}.summary-page{padding:14px;min-height:auto}.summary-playin-grid{grid-template-columns:1fr}.summary-awards{grid-template-columns:1fr}.summary-header{align-items:flex-start;flex-direction:column;gap:5px}}
+@media print{
+ body{background:#fff!important;color:#111!important}
+ .app>*:not(#summarySection){display:none!important}
+ #summarySection{display:block!important;margin:0!important;padding:0!important;border:0!important;box-shadow:none!important;background:#fff!important}
+ .summary{display:block!important;padding:0!important;margin:0!important;overflow:visible!important}
+ .summary-toolbar{display:none!important}
+ .summary-page{border:0!important;border-radius:0!important;box-shadow:none!important;min-height:0!important;padding:0!important}
+ .summary-page + .summary-page{margin-top:0!important}
+ .summary-page-two{page-break-before:always!important}
+ @page{size:A4 landscape;margin:8mm}
+}
+.footer{text-align:center;color:var(--muted);font-size:12px;margin-top:28px}
+@media(max-width:1000px){.conferences,.playin-grid{grid-template-columns:1fr}.awards{grid-template-columns:1fr 1fr}}
+@media(max-width:650px){.howto-grid{grid-template-columns:1fr 1fr}.brand-note{font-size:10px}.app{padding:16px 10px}.awards{grid-template-columns:1fr}.team-card{grid-template-columns:28px 36px 1fr}.badge{display:none}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="hero">
+    <div class="kicker">NBA Predictions</div>
+    <h1>2026–27 Season</h1>
+    <p class="subtitle">Votre soirée NBA : construisez votre classement, jouez le Play-In, faites avancer vos séries et couronnez votre champion.</p>
+    <div class="toolbar">
+      <input id="participantName" class="name-input" placeholder="Votre prénom / pseudo" maxlength="40">
+      <button class="btn primary" onclick="validateRegularSeason()">Valider la saison régulière</button>
+      <button class="btn gold" onclick="showSummary()">📄 Ma synthèse / PDF</button>
+      <button class="btn" onclick="shareApp()">↗️ Partager</button>
+      <button class="btn" onclick="resetAll()">↺ Réinitialiser</button>
+    </div>
+    <div class="brand-note"><strong>NBA Predictions 2026–27</strong> · un petit outil communautaire pour construire, comparer et partager votre saison NBA. Créé par Thibault.</div>
+    <div class="howto">
+      <h3>🏀 Comment ça marche ?</h3>
+      <div class="howto-grid">
+        <div class="howto-step"><b>01 · Classe</b>Placez les 30 franchises dans vos deux conférences.</div>
+        <div class="howto-step"><b>02 · Play-In</b>Faites avancer vos équipes 7 à 10.</div>
+        <div class="howto-step"><b>03 · Playoffs</b>Entrez les scores jusqu'aux Finals.</div>
+        <div class="howto-step"><b>04 · Awards</b>Choisissez vos lauréats puis exportez votre synthèse.</div>
+      </div>
+    </div>
+  </header>
+
+  <section class="section">
+    <div class="section-head">
+      <div><h2>01 — Saison régulière</h2><div class="note">Glissez les franchises pour construire votre classement.</div></div>
+      <div class="legend"><span><i class="dot green"></i> Playoffs directs · seeds 1–6</span><span><i class="dot orange"></i> Play-In · seeds 7–10</span></div>
+    </div>
+    <div class="conferences">
+      <div class="conf board-conf">
+        <div class="conf-title"><h3>WESTERN CONFERENCE</h3><small>Réserve → classement</small></div>
+        <div class="draft-layout west-layout">
+          <div class="reserve-panel"><div class="reserve-title">WEST RESERVE</div><div class="mobile-hint">Sur mobile : touchez une franchise puis sa position, ou faites-la glisser.</div><div class="js-fallback-note">Si les cartes restent figées, ouvrez le fichier dans un navigateur.</div><div id="westReserve" class="reserve-grid"><div class="reserve-card" draggable="true" data-id="DAL" data-conf="West"><span class="logo-wrap"><span class="logo-fallback">DAL</span><img src="https://a.espncdn.com/i/teamlogos/nba/500/dal.png" alt="Dallas Mavericks"></span><span>Dallas Mavericks</span></div><div class="reserve-card" draggable="true" data-id="DEN" data-conf="West"><span class="logo-wrap"><span class="logo-fallback">DEN</span><img src="https://a.espncdn.com/i/teamlogos/nba/500/den.png" alt="Denver Nuggets"></span><span>Denver Nuggets</span></div><div class="reserve-card" draggable="true" data-id="GS" data-conf="West"><span class="logo-wrap"><span class="logo-fallback">GS</span><img src="https://a.espncdn.com/i/teamlogos/nba/500/gs.png" alt="Golden State Warriors"></span><span>Golden State Warriors</span></div><div class="reserve-card" draggable="true" data-id="HOU" data-conf="West"><span class="logo-wrap"><span class="logo-fallback">HOU</span><img src="https://a.espncdn.com/i/teamlogos/nba/500/hou.png" alt="Houston Rockets"></span><span>Houston Rockets</span></div><div class="reserve-card" draggable="true" data-id="LAC" data-conf="West"><span class="logo-wrap"><span class="logo-fallback">LAC</span><img src="https://a.espncdn.com/i/teamlogos/nba/500/lac.png" alt="LA Clippers"></span><span>LA Clippers</span></div><div class="reserve-card" draggable="true" data-id="LAL" data-conf="West"><span class="logo-wrap"><span class="logo-fallback">LAL</span><img src="https://a.espncdn.com/i/teamlogos/nba/500/lal.png" alt="Los Angeles Lakers"></span><span>Los Angeles Lakers</span></div><div class="reserve-card" draggable="true" data-id="MEM" data-conf="West"><span class="logo-wrap"><span class="logo-fallback">MEM</span><img src="https://a.espncdn.com/i/teamlogos/nba/500/mem.png" alt="Memphis Grizzlies"></span><span>Memphis Grizzlies</span></div><div class="reserve-card" draggable="true" data-id="MIN" data-conf="West"><span class="logo-wrap"><span class="logo-fallback">MIN</span><img src="https://a.espncdn.com/i/teamlogos/nba/500/min.png" alt="Minnesota Timberwolves"></span><span>Minnesota Timberwolves</span></div><div class="reserve-card" draggable="true" data-id="NOP" data-conf="West"><span class="logo-wrap"><span class="logo-fallback">NOP</span><img src="https://a.espncdn.com/i/teamlogos/nba/500/no.png" alt="New Orleans Pelicans"></span><span>New Orleans Pelicans</span></div><div class="reserve-card" draggable="true" data-id="OKC" data-conf="West"><span class="logo-wrap"><span class="logo-fallback">OKC</span><img src="https://a.espncdn.com/i/teamlogos/nba/500/okc.png" alt="Oklahoma City Thunder"></span><span>Oklahoma City Thunder</span></div><div class="reserve-card" draggable="true" data-id="PHX" data-conf="West"><span class="logo-wrap"><span class="logo-fallback">PHX</span><img src="https://a.espncdn.com/i/teamlogos/nba/500/phx.png" alt="Phoenix Suns"></span><span>Phoenix Suns</span></div><div class="reserve-card" draggable="true" data-id="POR" data-conf="West"><span class="logo-wrap"><span class="logo-fallback">POR</span><img src="https://a.espncdn.com/i/teamlogos/nba/500/por.png" alt="Portland Trail Blazers"></span><span>Portland Trail Blazers</span></div><div class="reserve-card" draggable="true" data-id="SAC" data-conf="West"><span class="logo-wrap"><span class="logo-fallback">SAC</span><img src="https://a.espncdn.com/i/teamlogos/nba/500/sac.png" alt="Sacramento Kings"></span><span>Sacramento Kings</span></div><div class="reserve-card" draggable="true" data-id="SAS" data-conf="West"><span class="logo-wrap"><span class="logo-fallback">SAS</span><img src="https://a.espncdn.com/i/teamlogos/nba/500/sas.png" alt="San Antonio Spurs"></span><span>San Antonio Spurs</span></div><div class="reserve-card" draggable="true" data-id="UTA" data-conf="West"><span class="logo-wrap"><span class="logo-fallback">UTA</span><img src="https://a.espncdn.com/i/teamlogos/nba/500/utah.png" alt="Utah Jazz"></span><span>Utah Jazz</span></div></div></div>
+          <div class="rank-panel"><div class="reserve-title">CLASSEMENT</div><div id="westList" class="rank-list"></div></div>
+        </div>
+      </div>
+      <div class="conf board-conf">
+        <div class="conf-title"><h3>EASTERN CONFERENCE</h3><small>Classement ← réserve</small></div>
+        <div class="draft-layout east-layout">
+          <div class="rank-panel"><div class="reserve-title">CLASSEMENT</div><div id="eastList" class="rank-list"></div></div>
+          <div class="reserve-panel"><div class="reserve-title">EAST RESERVE</div><div class="mobile-hint">Sur mobile : touchez une franchise puis sa position, ou faites-la glisser.</div><div class="js-fallback-note">Si les cartes restent figées, ouvrez le fichier dans un navigateur.</div><div id="eastReserve" class="reserve-grid"><div class="reserve-card" draggable="true" data-id="ATL" data-conf="East"><span class="logo-wrap"><span class="logo-fallback">ATL</span><img src="https://a.espncdn.com/i/teamlogos/nba/500/atl.png" alt="Atlanta Hawks"></span><span>Atlanta Hawks</span></div><div class="reserve-card" draggable="true" data-id="BOS" data-conf="East"><span class="logo-wrap"><span class="logo-fallback">BOS</span><img src="https://a.espncdn.com/i/teamlogos/nba/500/bos.png" alt="Boston Celtics"></span><span>Boston Celtics</span></div><div class="reserve-card" draggable="true" data-id="BKN" data-conf="East"><span class="logo-wrap"><span class="logo-fallback">BKN</span><img src="https://a.espncdn.com/i/teamlogos/nba/500/bkn.png" alt="Brooklyn Nets"></span><span>Brooklyn Nets</span></div><div class="reserve-card" draggable="true" data-id="CHA" data-conf="East"><span class="logo-wrap"><span class="logo-fallback">CHA</span><img src="https://a.espncdn.com/i/teamlogos/nba/500/cha.png" alt="Charlotte Hornets"></span><span>Charlotte Hornets</span></div><div class="reserve-card" draggable="true" data-id="CHI" data-conf="East"><span class="logo-wrap"><span class="logo-fallback">CHI</span><img src="https://a.espncdn.com/i/teamlogos/nba/500/chi.png" alt="Chicago Bulls"></span><span>Chicago Bulls</span></div><div class="reserve-card" draggable="true" data-id="CLE" data-conf="East"><span class="logo-wrap"><span class="logo-fallback">CLE</span><img src="https://a.espncdn.com/i/teamlogos/nba/500/cle.png" alt="Cleveland Cavaliers"></span><span>Cleveland Cavaliers</span></div><div class="reserve-card" draggable="true" data-id="DET" data-conf="East"><span class="logo-wrap"><span class="logo-fallback">DET</span><img src="https://a.espncdn.com/i/teamlogos/nba/500/det.png" alt="Detroit Pistons"></span><span>Detroit Pistons</span></div><div class="reserve-card" draggable="true" data-id="IND" data-conf="East"><span class="logo-wrap"><span class="logo-fallback">IND</span><img src="https://a.espncdn.com/i/teamlogos/nba/500/ind.png" alt="Indiana Pacers"></span><span>Indiana Pacers</span></div><div class="reserve-card" draggable="true" data-id="MIA" data-conf="East"><span class="logo-wrap"><span class="logo-fallback">MIA</span><img src="https://a.espncdn.com/i/teamlogos/nba/500/mia.png" alt="Miami Heat"></span><span>Miami Heat</span></div><div class="reserve-card" draggable="true" data-id="MIL" data-conf="East"><span class="logo-wrap"><span class="logo-fallback">MIL</span><img src="https://a.espncdn.com/i/teamlogos/nba/500/mil.png" alt="Milwaukee Bucks"></span><span>Milwaukee Bucks</span></div><div class="reserve-card" draggable="true" data-id="NYK" data-conf="East"><span class="logo-wrap"><span class="logo-fallback">NYK</span><img src="https://a.espncdn.com/i/teamlogos/nba/500/ny.png" alt="New York Knicks"></span><span>New York Knicks</span></div><div class="reserve-card" draggable="true" data-id="ORL" data-conf="East"><span class="logo-wrap"><span class="logo-fallback">ORL</span><img src="https://a.espncdn.com/i/teamlogos/nba/500/orl.png" alt="Orlando Magic"></span><span>Orlando Magic</span></div><div class="reserve-card" draggable="true" data-id="PHI" data-conf="East"><span class="logo-wrap"><span class="logo-fallback">PHI</span><img src="https://a.espncdn.com/i/teamlogos/nba/500/phi.png" alt="Philadelphia 76ers"></span><span>Philadelphia 76ers</span></div><div class="reserve-card" draggable="true" data-id="TOR" data-conf="East"><span class="logo-wrap"><span class="logo-fallback">TOR</span><img src="https://a.espncdn.com/i/teamlogos/nba/500/tor.png" alt="Toronto Raptors"></span><span>Toronto Raptors</span></div><div class="reserve-card" draggable="true" data-id="WAS" data-conf="East"><span class="logo-wrap"><span class="logo-fallback">WAS</span><img src="https://a.espncdn.com/i/teamlogos/nba/500/wsh.png" alt="Washington Wizards"></span><span>Washington Wizards</span></div></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="playinSection">
+    <div class="section-head"><div><h2>02 — Play-In Tournament</h2><div class="note">Cliquez sur une équipe pour la faire avancer.</div></div></div>
+    <div id="playin" class="playin-grid"></div>
+  </section>
+
+  <section class="section">
+    <div class="section-head"><div><h2>03 — Playoffs</h2><div class="note">Saisissez les victoires. La première équipe à 4 avance automatiquement.</div></div></div>
+    <div class="bracket-wrap"><div id="bracket" class="bracket"></div></div>
+  </section>
+
+  <section class="section">
+    <div class="section-head"><div><h2>04 — NBA Finals</h2><div class="note">Le vainqueur de l'Ouest et le vainqueur de l'Est se retrouvent au centre.</div></div></div>
+    <div id="finals" class="final-box"></div>
+  </section>
+
+  <section class="section">
+    <div class="section-head"><div><h2>05 — Awards</h2><div class="note">Choisissez vos lauréats. La franchise et la photo s'affichent quand elles sont disponibles.</div></div></div>
+    <div id="awards" class="awards"></div>
+  </section>
+
+
+  <section id="summarySection" class="section">
+    <div class="summary-toolbar">
+      <button class="btn gold" onclick="showSummary()">Actualiser la synthèse</button>
+      <button class="btn primary" onclick="printSummary()">🖨️ Imprimer / Enregistrer en PDF</button>
+      <button class="btn" onclick="shareSummary()">↗️ Partager la synthèse</button>
+    </div>
+    <div id="summary" class="summary"></div>
+  </section>
+
+  <div class="footer">NBA Predictions 2026–27 · V2.8.1 · Créé par Thibault · Les franchises sont à glisser depuis les réserves vers les 15 slots. · Les logos sont chargés depuis le CDN ESPN. Les joueurs sont chargés depuis les rosters ESPN au démarrage, avec une base locale de secours.</div>
+</div>
+
+<script>
+const logoBase="https://a.espncdn.com/i/teamlogos/nba/500/";
+const teams=[
+["ATL","Atlanta Hawks","East","atl"],["BOS","Boston Celtics","East","bos"],["BKN","Brooklyn Nets","East","bkn"],
+["CHA","Charlotte Hornets","East","cha"],["CHI","Chicago Bulls","East","chi"],["CLE","Cleveland Cavaliers","East","cle"],
+["DET","Detroit Pistons","East","det"],["IND","Indiana Pacers","East","ind"],["MIA","Miami Heat","East","mia"],
+["MIL","Milwaukee Bucks","East","mil"],["NYK","New York Knicks","East","ny"],["ORL","Orlando Magic","East","orl"],
+["PHI","Philadelphia 76ers","East","phi"],["TOR","Toronto Raptors","East","tor"],["WAS","Washington Wizards","East","wsh"],
+["DAL","Dallas Mavericks","West","dal"],["DEN","Denver Nuggets","West","den"],["GS","Golden State Warriors","West","gs"],
+["HOU","Houston Rockets","West","hou"],["LAC","LA Clippers","West","lac"],["LAL","Los Angeles Lakers","West","lal"],
+["MEM","Memphis Grizzlies","West","mem"],["MIN","Minnesota Timberwolves","West","min"],["NOP","New Orleans Pelicans","West","no"],
+["OKC","Oklahoma City Thunder","West","okc"],["PHX","Phoenix Suns","West","phx"],["POR","Portland Trail Blazers","West","por"],
+["SAC","Sacramento Kings","West","sac"],["SAS","San Antonio Spurs","West","sas"],["UTA","Utah Jazz","West","utah"]
+];
+const T=Object.fromEntries(teams.map(t=>[t[0],{id:t[0],name:t[1],conf:t[2],logo:logoBase+t[3]+".png"}]));
+let order={East:Array(15).fill(null),West:Array(15).fill(null)};
+let playinWinners={East:{seven:null,eight:null,q1:null,q2:null,q3:null},West:{seven:null,eight:null,q1:null,q2:null,q3:null}};
+let playoffSeeds={East:[],West:[]};
+let seriesState={};
+let awardsState={};
+let playerDB=[];
+let playerDBReady=false;
+let selectedTeam={West:null,East:null};
+
+function shortLogo(id){return (id==="GS"?"GSW":id==="NOP"?"NOP":id==="SAS"?"SAS":id==="UTA"?"UTA":id||"").slice(0,4)}
+function teamCard(id,index){
+ const t=T[id], seed=index+1, type=seed<=6?"playoffs":seed<=10?"playin":"out";
+ const badge=type==="playoffs"?'<span class="badge green">PLAYOFFS</span>':type==="playin"?'<span class="badge orange">PLAY-IN</span>':'';
+ return `<div class="drop-slot ${type==="out"?"no-post":""} filled" data-id="${id}" data-conf="${t.conf}">
+   <div class="slot-number">${seed}</div>
+   <div class="slot-team"><span class="logo-wrap"><span class="logo-fallback">${shortLogo(id)}</span><img src="${t.logo}" alt=""></span><span>${t.name}</span>${badge}</div>
+ </div>`;
+}
+function emptySlot(index){
+ const seed=index+1, type=seed<=6?"playoffs":seed<=10?"playin":"out";
+ return `<div class="drop-slot ${type==="out"?"no-post":""}" data-index="${index}">
+   <div class="slot-number">${seed}</div><div class="slot-placeholder">Déposer une franchise ici</div>
+ </div>`;
+}
+function reserveCard(id){
+ const t=T[id];
+ return `<div class="reserve-card" draggable="true" data-id="${id}" data-conf="${t.conf}">
+   <span class="logo-wrap"><span class="logo-fallback">${shortLogo(id)}</span><img src="${t.logo}" alt=""></span><span>${t.name}</span>
+ </div>`;
+}
+function renderConference(conf){
+ const list=document.getElementById(conf==="West"?"westList":"eastList");
+ const reserve=document.getElementById(conf==="West"?"westReserve":"eastReserve");
+
+ // Always build the 15 empty/filled ranking slots.
+ const ranking=Array.isArray(order[conf]) ? order[conf] : Array(15).fill(null);
+ list.innerHTML=Array.from({length:15},(_,i)=>ranking[i] ? teamCard(ranking[i],i) : emptySlot(i)).join("");
+
+ // The reserve is the complete conference roster minus teams already placed.
+ const placed=new Set(ranking.filter(Boolean));
+ const conferenceTeams=teams.filter(t=>t[2]===conf).map(t=>t[0]);
+ const available=conferenceTeams.filter(id=>!placed.has(id));
+ reserve.innerHTML = available.length
+   ? available.map(reserveCard).join("")
+   : '<div class="note" style="text-align:center;padding:12px 4px">Toutes les franchises sont placées.</div>';
+
+ // Make both reserve cards and filled ranking cards draggable.
+ enableBoardDnD(conf);
+}
+function enableBoardDnD(conf){
+ const list=document.getElementById(conf==="West"?"westList":"eastList");
+ let dragged=null;
+ let pointerDrag=null;
+ let suppressClickUntil=0;
+
+ // Desktop drag & drop.
+ document.querySelectorAll(`.reserve-card[data-conf="${conf}"]`).forEach(card=>{
+   card.addEventListener("dragstart",e=>{
+     dragged=card.dataset.id;
+     card.classList.add("dragging");
+     if(e.dataTransfer){e.dataTransfer.effectAllowed="move";e.dataTransfer.setData("text/plain",dragged);}
+   });
+   card.addEventListener("dragend",()=>{
+     card.classList.remove("dragging");
+     dragged=null;
+   });
+
+   // Mobile: real pointer drag fallback (works on iPhone Safari where HTML5 drag is unreliable).
+   card.addEventListener("pointerdown",e=>{
+     if(e.pointerType==="mouse" && e.button!==0)return;
+     e.preventDefault();
+     selectedTeam[conf]=card.dataset.id;
+     document.querySelectorAll(`.reserve-card[data-conf="${conf}"]`).forEach(c=>c.classList.remove("selected"));
+     card.classList.add("selected");
+     pointerDrag={id:card.dataset.id,card,conf,startX:e.clientX,startY:e.clientY,moved:false};
+     try{card.setPointerCapture(e.pointerId);}catch(_){ }
+   });
+   card.addEventListener("pointermove",e=>{
+     if(!pointerDrag || pointerDrag.card!==card)return;
+     const dx=e.clientX-pointerDrag.startX, dy=e.clientY-pointerDrag.startY;
+     if(Math.hypot(dx,dy)>8){
+       pointerDrag.moved=true;
+       card.classList.add("pointer-dragging");
+       const el=document.elementFromPoint(e.clientX,e.clientY);
+       const slot=el?.closest?.(`.drop-slot[data-conf="${conf}"]`);
+       list.querySelectorAll(".drop-slot").forEach(x=>x.classList.remove("hover"));
+       if(slot)slot.classList.add("hover");
+     }
+   });
+   card.addEventListener("pointerup",e=>{
+     if(!pointerDrag || pointerDrag.card!==card)return;
+     const wasDrag=pointerDrag.moved;
+     const id=pointerDrag.id;
+     card.classList.remove("pointer-dragging");
+     list.querySelectorAll(".drop-slot").forEach(x=>x.classList.remove("hover"));
+     if(wasDrag){
+       const el=document.elementFromPoint(e.clientX,e.clientY);
+       const slot=el?.closest?.(`.drop-slot[data-conf="${conf}"]`);
+       if(slot){
+         placeTeam(conf,id,Number(slot.dataset.index ?? [...list.children].indexOf(slot)));
+         selectedTeam[conf]=null;
+         suppressClickUntil=Date.now()+400;
+         renderAll();
+       }
+     }
+     pointerDrag=null;
+   });
+   card.addEventListener("pointercancel",()=>{
+     card.classList.remove("pointer-dragging");
+     list.querySelectorAll(".drop-slot").forEach(x=>x.classList.remove("hover"));
+     pointerDrag=null;
+   });
+
+   // Tap fallback: select a franchise, then tap its destination slot.
+   card.addEventListener("click",()=>{
+     if(Date.now()<suppressClickUntil)return;
+     selectedTeam[conf]=card.dataset.id;
+     document.querySelectorAll(`.reserve-card[data-conf="${conf}"]`).forEach(c=>c.classList.remove("selected"));
+     card.classList.add("selected");
+   });
+ });
+
+ // Filled ranking cards can also be moved by drag/pointer, or selected by tap.
+ list.querySelectorAll(".drop-slot.filled").forEach(card=>{
+   card.setAttribute("draggable","true");
+   card.addEventListener("dragstart",e=>{
+     dragged=card.dataset.id;
+     card.classList.add("dragging");
+     if(e.dataTransfer){e.dataTransfer.effectAllowed="move";e.dataTransfer.setData("text/plain",dragged);}
+   });
+   card.addEventListener("dragend",()=>{
+     card.classList.remove("dragging");
+     dragged=null;
+   });
+   card.addEventListener("pointerdown",e=>{
+     if(e.pointerType==="mouse" && e.button!==0)return;
+     e.preventDefault();
+     pointerDrag={id:card.dataset.id,card,conf,startX:e.clientX,startY:e.clientY,moved:false};
+     try{card.setPointerCapture(e.pointerId);}catch(_){ }
+   });
+   card.addEventListener("pointermove",e=>{
+     if(!pointerDrag || pointerDrag.card!==card)return;
+     const dx=e.clientX-pointerDrag.startX, dy=e.clientY-pointerDrag.startY;
+     if(Math.hypot(dx,dy)>8){
+       pointerDrag.moved=true;
+       card.classList.add("pointer-dragging");
+       const el=document.elementFromPoint(e.clientX,e.clientY);
+       const slot=el?.closest?.(`.drop-slot[data-conf="${conf}"]`);
+       list.querySelectorAll(".drop-slot").forEach(x=>x.classList.remove("hover"));
+       if(slot)slot.classList.add("hover");
+     }
+   });
+   card.addEventListener("pointerup",e=>{
+     if(!pointerDrag || pointerDrag.card!==card)return;
+     const wasDrag=pointerDrag.moved, id=pointerDrag.id;
+     card.classList.remove("pointer-dragging");
+     list.querySelectorAll(".drop-slot").forEach(x=>x.classList.remove("hover"));
+     if(wasDrag){
+       const el=document.elementFromPoint(e.clientX,e.clientY);
+       const slot=el?.closest?.(`.drop-slot[data-conf="${conf}"]`);
+       if(slot){
+         placeTeam(conf,id,Number(slot.dataset.index ?? [...list.children].indexOf(slot)));
+         suppressClickUntil=Date.now()+400;
+         renderAll();
+       }
+     }
+     pointerDrag=null;
+   });
+   card.addEventListener("pointercancel",()=>{card.classList.remove("pointer-dragging");pointerDrag=null;});
+ });
+
+ list.querySelectorAll(".drop-slot").forEach(slot=>{
+   slot.addEventListener("dragover",e=>{e.preventDefault();slot.classList.add("hover");});
+   slot.addEventListener("dragleave",()=>slot.classList.remove("hover"));
+   slot.addEventListener("drop",e=>{
+     e.preventDefault();slot.classList.remove("hover");
+     const id=dragged||e.dataTransfer?.getData("text/plain");
+     if(!id)return;
+     placeTeam(conf,id,Number(slot.dataset.index ?? [...list.children].indexOf(slot)));
+     dragged=null;
+     renderAll();
+   });
+
+   // Mobile tap fallback.
+   slot.addEventListener("click",()=>{
+     if(!selectedTeam[conf])return;
+     placeTeam(conf,selectedTeam[conf],Number(slot.dataset.index ?? [...list.children].indexOf(slot)));
+     selectedTeam[conf]=null;
+     renderAll();
+   });
+ });
+}
+function placeTeam(conf,id,target){
+ const arr=order[conf].slice();
+ const from=arr.indexOf(id);
+ if(from>=0) arr.splice(from,1);
+ const compact=arr.filter(Boolean);
+ compact.splice(Math.min(target,compact.length),0,id);
+ order[conf]=compact.slice(0,15);
+ while(order[conf].length<15) order[conf].push(null);
+}
+
+document.documentElement.classList.add("js-ready");
+
+function renderAll(){
+  renderConference("West");
+  renderConference("East");
+  renderPlayIn();
+  renderBracket();
+  renderFinals();
+  renderAwards();
+}
+
+function logo(id){return T[id]?.logo||""}
+function name(id){return T[id]?.name||"À déterminer"}
+
+function validateRegularSeason(){
+ for(const c of ["East","West"]){
+   if(order[c].some(x=>!x)){alert("Placez les 15 franchises de la conférence "+(c==="East"?"Est":"Ouest")+" avant de valider.");return}
+ }
+ playoffSeeds={East:[],West:[]};
+ playinWinners={
+   East:{seven:order.East[6],eight:order.East[7],q1:null,q2:null,q3:null},
+   West:{seven:order.West[6],eight:order.West[7],q1:null,q2:null,q3:null}
+ };
+ seriesState={};
+ for(const c of ["East","West"]){
+   playoffSeeds[c]=order[c].slice(0,6);
+ }
+ alert("Classement enregistré. Le Play-In et le bracket ont été recalculés.");
+ renderAll();
+ document.getElementById("playinSection").scrollIntoView({behavior:"smooth"});
+}
+
+function playinCard(conf){
+ const o=order[conf], state=playinWinners[conf];
+ const seven=o[6], eight=o[7], nine=o[8], ten=o[9];
+ const q1=state.q1||null, q2=state.q2||null, q3=state.q3||null;
+ const loser78=q1 ? (q1===seven ? eight : seven) : null;
+ const winner910=q2;
+ return `<div class="playin-conf">
+  <h3>${conf==="West"?"WESTERN":"EASTERN"} CONFERENCE</h3>
+
+  <div class="matchup">
+    <div class="matchup-head"><span>7 vs 8</span><span>Élimination directe · 1–0</span></div>
+    ${playinTeam(seven,conf,"q1",q1===seven)}
+    ${playinTeam(eight,conf,"q1",q1===eight)}
+  </div>
+
+  <div class="matchup">
+    <div class="matchup-head"><span>9 vs 10</span><span>Élimination directe · 1–0</span></div>
+    ${playinTeam(nine,conf,"q2",q2===nine)}
+    ${playinTeam(ten,conf,"q2",q2===ten)}
+  </div>
+
+  <div class="matchup">
+    <div class="matchup-head"><span>Final Play-In</span><span>Élimination directe · 1–0</span></div>
+    ${loser78 ? playinTeam(loser78,conf,"q3",q3===loser78) : `<div class="empty">Perdant du 7–8 à déterminer</div>`}
+    ${winner910 ? playinTeam(winner910,conf,"q3",q3===winner910) : `<div class="empty">Vainqueur du 9–10 à déterminer</div>`}
+  </div>
+
+  <div class="playin-result">
+    <div><span class="result-label">Seed 7 Playoffs</span>
+      ${q1 ? `<strong><img class="small-logo" src="${logo(q1)}">${name(q1)}</strong>` : `<span class="note">Vainqueur 7–8</span>`}
+    </div>
+    <div><span class="result-label">Seed 8 Playoffs</span>
+      ${q3 ? `<strong><img class="small-logo" src="${logo(q3)}">${name(q3)}</strong>` : `<span class="note">Vainqueur du Final Play-In</span>`}
+    </div>
+  </div>
+
+  <div class="note">Cliquez sur le vainqueur de chaque match. Le perdant du 9–10 est éliminé, puis le vainqueur du dernier match devient seed 8.</div>
+ </div>`;
+}
+function playinTeam(id,conf,slot,selected){
+ if(!id)return `<div class="empty">En attente</div>`;
+ return `<div class="match-team ${selected?"selected":""}">
+   <button onclick="choosePlayIn('${conf}','${slot}','${id}')"><img class="small-logo" src="${logo(id)}">${name(id)}</button>
+   <span class="${selected?"winner":"result-zero"}">${selected?"1":"0"}</span>
+ </div>`;
+}
+function choosePlayIn(conf,slot,id){
+ const s=playinWinners[conf];
+ if(slot==="q1"){
+   s.q1=id;
+   // A new 7/8 result changes the participant in the final Play-In.
+   s.q3=null;
+ }else if(slot==="q2"){
+   s.q2=id;
+   // A new 9/10 result changes the participant in the final Play-In.
+   s.q3=null;
+ }else if(slot==="q3"){
+   // Final Play-In winner becomes the conference's playoff seed 8.
+   s.q3=id;
+ }
+ playoffSeeds[conf]=[
+   order[conf][0],
+   order[conf][1],
+   order[conf][2],
+   order[conf][3],
+   order[conf][4],
+   order[conf][5],
+   s.q1||null,
+   s.q3||null
+ ];
+ renderAll();
+}
+
+function renderPlayIn(){
+ if(order.East.some(x=>!x)||order.West.some(x=>!x)){
+   document.getElementById("playin").innerHTML='<div class="empty" style="grid-column:1/-1">Complétez les deux classements pour générer le Play-In.</div>';
+   return;
+ }
+ document.getElementById("playin").innerHTML=playinCard("West")+playinCard("East");
+}
+
+function makeSeries(id,a,b){
+ if(!seriesState[id])seriesState[id]={a,b,sa:0,sb:0,winner:null};
+ else {seriesState[id].a=a;seriesState[id].b=b}
+ const s=seriesState[id];
+ if(s.winner && s.winner!==s.a && s.winner!==s.b)s.winner=null;
+ if(s.sa>=4)s.winner=s.a; if(s.sb>=4)s.winner=s.b;
+ return s;
+}
+function scoreSeries(id,side,val){
+ const s=seriesState[id]; let n=Math.max(0,Math.min(4,parseInt(val||0)));
+ if(side==="a")s.sa=n;else s.sb=n;
+ if(s.sa>=4)s.winner=s.a;else if(s.sb>=4)s.winner=s.b;else s.winner=null;
+ renderBracket(); renderFinals();
+}
+function seriesHTML(id,a,b){
+ const s=makeSeries(id,a,b);
+ return `<div class="series">
+   ${seriesTeam(s.a,s.sa,s.winner===s.a,id,"a")}${seriesTeam(s.b,s.sb,s.winner===s.b,id,"b")}
+   <div class="series-note">${s.winner?name(s.winner)+" avance":"Premier à 4 victoires"}</div>
+ </div>`;
+}
+function seriesTeam(id,score,active,sid,side){
+ return `<div class="team ${active?"active":""}">
+   <button>${id?`<img class="small-logo" src="${logo(id)}">${name(id)}`:"À déterminer"}</button>
+   <input class="score" type="number" min="0" max="4" value="${score}" onchange="scoreSeries('${sid}','${side}',this.value)" ${!id?"disabled":""}>
+ </div>`;
+}
+function winner(id){return seriesState[id]?.winner||null}
+function renderBracket(){
+ const seeds=playoffSeeds;
+ if(!seeds.East.length){document.getElementById("bracket").innerHTML='<div class="empty" style="grid-column:1/-1">Validez votre classement pour générer le bracket.</div>';return}
+ // 8-team bracket per conference. R1: 1-8, 4-5, 2-7, 3-6
+ const w=seeds.West,e=seeds.East;
+ const data=[
+   {title:"WEST · FIRST ROUND", items:[["W1",w[0],w[7]],["W2",w[3],w[4]],["W3",w[1],w[6]],["W4",w[2],w[5]]]},
+   {title:"WEST · SEMIFINALS", items:[["W5",winner("W1"),winner("W2")],["W6",winner("W3"),winner("W4")]]},
+   {title:"WEST · FINALS", items:[["W7",winner("W5"),winner("W6")]]},
+   {title:"EAST · FINALS", items:[["E7",winner("E5"),winner("E6")]]},
+   {title:"EAST · SEMIFINALS", items:[["E5",winner("E1"),winner("E2")],["E6",winner("E3"),winner("E4")]]},
+   {title:"EAST · FIRST ROUND", items:[["E1",e[0],e[7]],["E2",e[3],e[4]],["E3",e[1],e[6]],["E4",e[2],e[5]]]}
+ ];
+ document.getElementById("bracket").innerHTML=data.map(col=>`<div class="round"><h3>${col.title}</h3>${col.items.map(x=>seriesHTML(x[0],x[1],x[2])).join("")}</div>`).join("");
+}
+function renderFinals(){
+ const west=winner("W7"), east=winner("E7");
+ const box=document.getElementById("finals");
+ if(!west&&!east){box.innerHTML='<div class="note">Les deux conférences doivent atteindre leurs Conference Finals.</div>';return}
+ box.innerHTML=`<div style="font-size:12px;color:var(--gold);letter-spacing:.16em;font-weight:900">NBA FINALS</div>
+   <div style="display:flex;justify-content:center;gap:35px;align-items:center;flex-wrap:wrap;margin:12px 0">
+    <div>${west?`<img class="champion-logo" src="${logo(west)}"><div class="champion">${name(west)}</div>`:"<div class='note'>West TBD</div>"}</div>
+    <div style="font-size:34px;font-weight:950;color:var(--gold)">VS</div>
+    <div>${east?`<img class="champion-logo" src="${logo(east)}"><div class="champion">${name(east)}</div>`:"<div class='note'>East TBD</div>"}</div>
+   </div>
+   ${west&&east?seriesHTML("NBA",west,east):""}`;
+}
+
+const awardDefs=[
+ ["MVP","Regular Season MVP"],["DPOY","Defensive Player of the Year"],["ROY","Rookie of the Year"],
+ ["6MOY","Sixth Man of the Year"],["MIP","Most Improved Player"],["ECFMVP","Eastern Conference Finals MVP"],
+ ["WCFMVP","Western Conference Finals MVP"],["FMVP","NBA Finals MVP"]
+];
+// Starter player directory. The user can still enter any name manually and choose a franchise.
+const playerPhotos={
+ "Nikola Jokic":"https://a.espncdn.com/i/headshots/nba/players/full/3112335.png",
+ "Shai Gilgeous-Alexander":"https://a.espncdn.com/i/headshots/nba/players/full/4278073.png",
+ "Victor Wembanyama":"https://a.espncdn.com/i/headshots/nba/players/full/5104157.png",
+ "Luka Doncic":"https://a.espncdn.com/i/headshots/nba/players/full/3945274.png",
+ "Anthony Edwards":"https://a.espncdn.com/i/headshots/nba/players/full/4594268.png",
+ "Jayson Tatum":"https://a.espncdn.com/i/headshots/nba/players/full/4065648.png",
+ "Stephen Curry":"https://a.espncdn.com/i/headshots/nba/players/full/3975.png",
+ "Giannis Antetokounmpo":"https://a.espncdn.com/i/headshots/nba/players/full/3032977.png",
+ "Joel Embiid":"https://a.espncdn.com/i/headshots/nba/players/full/3059318.png",
+ "Kevin Durant":"https://a.espncdn.com/i/headshots/nba/players/full/3202.png",
+ "LeBron James":"https://a.espncdn.com/i/headshots/nba/players/full/1966.png",
+ "Chet Holmgren":"https://a.espncdn.com/i/headshots/nba/players/full/4433254.png",
+ "Cooper Flagg":"https://a.espncdn.com/i/headshots/nba/players/full/5106648.png",
+ "Cade Cunningham":"https://a.espncdn.com/i/headshots/nba/players/full/4432162.png",
+ "Paolo Banchero":"https://a.espncdn.com/i/headshots/nba/players/full/4432573.png",
+ "Ja Morant":"https://a.espncdn.com/i/headshots/nba/players/full/4279888.png",
+ "Tyrese Haliburton":"https://a.espncdn.com/i/headshots/nba/players/full/4431680.png",
+ "Jalen Brunson":"https://a.espncdn.com/i/headshots/nba/players/full/3934672.png"
+};
+const playerNames=Object.keys(playerPhotos);
+
+const espnRosterIds={
+ ATL:"ATL",BOS:"BOS",BKN:"BKN",CHA:"CHA",CHI:"CHI",CLE:"CLE",DET:"DET",IND:"IND",MIA:"MIA",
+ MIL:"MIL",NYK:"NYK",ORL:"ORL",PHI:"PHI",TOR:"TOR",WAS:"WAS",
+ DAL:"DAL",DEN:"DEN",GS:"GS",HOU:"HOU",LAC:"LAC",LAL:"LAL",MEM:"MEM",MIN:"MIN",NOP:"NO",
+ OKC:"OKC",PHX:"PHX",POR:"POR",SAC:"SAC",SAS:"SA",UTA:"UTAH"
+};
+
+function normalizeText(v){
+ return (v||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim();
+}
+function fallbackPlayerDB(){
+ return playerNames.map(n=>({id:"fallback-"+n,name:n,team:null,photo:playerPhotos[n]||""}));
+}
+async function loadPlayerDatabase(){
+ const base="https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/";
+ const rosterTeams=teams.map(t=>t[0]);
+ try{
+   const results=await Promise.all(rosterTeams.map(async code=>{
+     const espn=espnRosterIds[code]||code;
+     const res=await fetch(`${base}${encodeURIComponent(espn)}/roster`);
+     if(!res.ok)throw new Error("Roster "+code+" HTTP "+res.status);
+     const data=await res.json();
+     const athletes=data?.athletes||data?.team?.athletes||data?.team?.roster?.entries?.map(x=>x.athlete)||[];
+     return athletes.map(a=>({
+       id:String(a.id||a.uid||a.guid||a.fullName),
+       name:a.fullName||a.displayName||a.shortName||"",
+       team:code,
+       photo:a.headshot?.href||a.headshot?.url||""
+     })).filter(x=>x.name);
+   }));
+   const flat=results.flat();
+   const unique=new Map(flat.map(x=>[normalizeText(x.name),x]));
+   playerDB=[...unique.values()].sort((a,b)=>a.name.localeCompare(b.name));
+   if(playerDB.length<100)throw new Error("Roster data incomplete");
+   playerDBReady=true;
+   document.querySelectorAll(".award-status").forEach(el=>el.textContent=`Base joueurs chargée · ${playerDB.length} joueurs`);
+   renderAwards();
+ }catch(err){
+   console.warn("Impossible de charger les rosters ESPN",err);
+   playerDB=fallbackPlayerDB();
+   playerDBReady=false;
+   document.querySelectorAll(".award-status").forEach(el=>el.textContent="Base locale de secours · recherche limitée");
+ }
+}
+function playerSuggestions(id,query){
+ const q=normalizeText(query);
+ if(q.length<2)return [];
+ const source=playerDB.length?playerDB:fallbackPlayerDB();
+ return source.filter(p=>normalizeText(p.name).includes(q)).slice(0,8);
+}
+function handlePlayerInput(id,value){
+ awardsState[id]=awardsState[id]||{player:"",team:"",playerId:""};
+ awardsState[id].player=value;
+ awardsState[id].playerId="";
+ awardsState[id].team="";
+ const box=document.getElementById("suggestions-"+id);
+ if(!box)return;
+ const matches=playerSuggestions(id,value);
+ box.innerHTML=matches.length?matches.map(p=>`
+   <button type="button" class="player-suggestion" onclick="choosePlayer('${id}','${String(p.id).replace(/'/g,"\\'")}')">
+     ${p.photo?`<img class="suggestion-photo" src="${p.photo}" alt="">`:`<span class="suggestion-photo"></span>`}
+     <span><strong>${p.name}</strong><small style="display:block;color:var(--muted)">${p.team?name(p.team):"Franchise à définir"}</small></span>
+   </button>`).join(""):`<div class="note" style="padding:10px">Aucun joueur trouvé.</div>`;
+}
+function choosePlayer(awardId,playerId){
+ const source=playerDB.length?playerDB:fallbackPlayerDB();
+ const p=source.find(x=>String(x.id)===String(playerId));
+ if(!p)return;
+ awardsState[awardId]={player:p.name,team:p.team||"",playerId:p.id,photo:p.photo||""};
+ renderAwards();
+}
+function renderAwards(){
+ document.getElementById("awards").innerHTML=awardDefs.map(([id,title])=>{
+   const st=awardsState[id]||{player:"",team:"",playerId:""};
+   const t=st.team?T[st.team]:null;
+   return `<div class="award"><h3>${title}</h3>
+    <div class="player-search">
+      <input autocomplete="off" placeholder="Rechercher un joueur…" value="${(st.player||"").replace(/"/g,"&quot;")}"
+        oninput="handlePlayerInput('${id}',this.value)"
+        onfocus="handlePlayerInput('${id}',this.value)">
+      <div class="player-suggestions" id="suggestions-${id}"></div>
+    </div>
+    <div class="award-status">${playerDBReady?`Base joueurs chargée · ${playerDB.length} joueurs`:"Chargement de la base joueurs…"}</div>
+    <div class="player-card" id="card-${id}">${awardCard(st)}</div>
+   </div>`;
+ }).join("");
+}
+function awardCard(s){
+ if(!s.player)return `<span class="note">Votre choix apparaîtra ici.</span>`;
+ const t=s.team?T[s.team]:null, photo=s.photo||playerPhotos[s.player]||"";
+ return `${photo?`<img class="player-photo" src="${photo}" alt="">`:`<div class="player-photo"></div>`}
+   <div class="player-info"><strong>${s.player}</strong><small>${t?`<img src="${t.logo}" style="width:20px;height:20px;vertical-align:middle;object-fit:contain"> ${t.name}`:"Franchise non disponible"}</small></div>`;
+}
+function setAward(id,key,val){
+ awardsState[id]=awardsState[id]||{player:"",team:"",playerId:""};
+ awardsState[id][key]=val;
+ renderAwards();
+}
+function loadAwardDatabaseOnStart(){ loadPlayerDatabase(); }
+
+
+function summaryTeamRow(id,i,conf){
+ const t=T[id];
+ const status=i<6?"PLAYOFFS":i<10?"PLAY-IN":"OUT";
+ return `<div class="summary-rank"><div class="rank-num">${i+1}</div><img src="${t.logo}" alt=""><div class="rank-name">${t.name}</div><div class="rank-status">${status}</div></div>`;
+}
+function summarySeed(conf,id){
+ const arr=playoffSeeds[conf]||[];
+ const i=arr.indexOf(id);
+ return i>=0?i+1:"";
+}
+function summarySeriesCard(id,conf){
+ const s=seriesState[id];
+ if(!s)return `<div class="summary-series"><div class="series-note">Série non renseignée</div></div>`;
+ const seedA=conf?summarySeed(conf,s.a):"", seedB=conf?summarySeed(conf,s.b):"";
+ const team=(tid,score,seed,isWinner)=>`<div class="series-team ${isWinner?"winner":""}"><span class="series-seed">${seed||""}</span><img src="${logo(tid)}" alt=""><span class="series-name">${name(tid)}</span><span class="series-score">${score}</span></div>`;
+ const note=s.winner?'<div class="series-note">Vainqueur · '+name(s.winner)+'</div>':'<div class="series-note">Premier à 4</div>';
+ return `<div class="summary-series">${team(s.a,s.sa,seedA,s.winner===s.a)}${team(s.b,s.sb,seedB,s.winner===s.b)}${note}</div>`;
+}
+function summaryRound(conf,ids,title,roundClass){
+ return `<div class="summary-round ${roundClass}"><h4>${title}</h4>${ids.map(id=>summarySeriesCard(id,conf)).join("")}</div>`;
+}
+function summaryConference(conf,side){
+ const prefix=conf==="West"?"W":"E";
+ const rounds=conf==="East"
+   ? [
+       summaryRound(conf,[prefix+"7"],"Conference final","r3"),
+       summaryRound(conf,[prefix+"5",prefix+"6"],"Conference semifinals","r2"),
+       summaryRound(conf,[prefix+"1",prefix+"2",prefix+"3",prefix+"4"],"First round","r1")
+     ]
+   : [
+       summaryRound(conf,[prefix+"1",prefix+"2",prefix+"3",prefix+"4"],"First round","r1"),
+       summaryRound(conf,[prefix+"5",prefix+"6"],"Conference semifinals","r2"),
+       summaryRound(conf,[prefix+"7"],"Conference final","r3")
+     ];
+ return `<div class="summary-side ${side||""}">${rounds.join("")}</div>`;
+}
+function summaryFinals(){
+ const s=seriesState.NBA;
+ if(!s)return `<div class="summary-finals"><div class="finals-label">NBA Finals</div><div class="finals-vs">En attente des deux champions de conférence</div></div>`;
+ const team=(tid,score,isWinner)=>`<div class="finals-team"><img class="finals-logo" src="${logo(tid)}" alt=""><div>${name(tid)}</div><strong>${score}</strong></div>`;
+ const champion=s.winner?'<div class="champion">🏆 '+name(s.winner)+'</div>':'<div class="champion">Premier à 4 victoires</div>';
+ return `<div class="summary-finals"><div class="finals-label">NBA Finals</div>${team(s.a,s.sa,s.winner===s.a)}<div class="finals-vs">VS</div>${team(s.b,s.sb,s.winner===s.b)}${champion}</div>`;
+}
+function summaryPlayInLine(conf){
+ const o=order[conf]||[]; const st=playinWinners[conf]||{};
+ const label=conf==="West"?"Ouest":"Est";
+ const q1=st.q1?name(st.q1):"—", q2=st.q2?name(st.q2):"—", q3=st.q3?name(st.q3):"—";
+ return `<div class="summary-playin-conf"><h4>${label}</h4><div class="summary-playin-line"><strong>7 / 8</strong> · ${o[6]?name(o[6]):"—"} vs ${o[7]?name(o[7]):"—"} → <strong>${q1}</strong></div><div class="summary-playin-line"><strong>9 / 10</strong> · ${o[8]?name(o[8]):"—"} vs ${o[9]?name(o[9]):"—"} → <strong>${q2}</strong></div><div class="summary-playin-line"><strong>Dernier match</strong> → <strong>${q3}</strong></div></div>`;
+}
+function showSummary(){
+ const who=(document.getElementById("participantName")?.value||"Ma prédiction").trim();
+ const west=order.West.every(Boolean), east=order.East.every(Boolean);
+ const awards=awardDefs.map(([id,title])=>{
+   const a=awardsState[id]||{};
+   const t=a.team?T[a.team]:null;
+   return `<div class="summary-award"><strong>${title}</strong><span>${a.player||"Non renseigné"}</span><small>${t?t.name:""}</small></div>`;
+ }).join("");
+ const summary=document.getElementById("summary");
+ summary.innerHTML=`
+   <div class="summary-page">
+     <div class="summary-header"><div><div class="summary-kicker">NBA Predictions · 2026–27</div><div class="summary-title">ROAD TO THE FINALS</div><div class="summary-name">${who}</div></div><div class="summary-date">${new Date().toLocaleDateString("fr-FR")}</div></div>
+     <div class="summary-board-title">Votre bracket NBA</div>
+     <div class="summary-board-sub">Les équipes et scores correspondent à votre prédiction · les vainqueurs sont automatiquement mis en évidence.</div>
+     <div class="summary-bracket-board">
+       ${summaryConference("West","west")}
+       ${summaryFinals()}
+       ${summaryConference("East","east")}
+     </div>
+     <div class="summary-playin"><div class="summary-playin-title">Play-In Tournament</div><div class="summary-playin-grid">${summaryPlayInLine("West")}${summaryPlayInLine("East")}</div></div>
+     <div class="summary-footer">Page 1 · Bracket et parcours vers le titre</div>
+   </div>
+   <div class="summary-page summary-page-two">
+     <div class="summary-header"><div><div class="summary-kicker">NBA Predictions · 2026–27</div><div class="summary-title">CLASSEMENTS & AWARDS</div><div class="summary-name">${who}</div></div><div class="summary-date">${new Date().toLocaleDateString("fr-FR")}</div></div>
+     <div style="margin-top:16px"><div class="summary-section-title">Saison régulière</div><div class="summary-rankings">
+       <div class="summary-rank-card"><h3>Western Conference</h3>${west?order.West.map((id,i)=>summaryTeamRow(id,i,"West")).join(""):"Classement incomplet"}</div>
+       <div class="summary-rank-card"><h3>Eastern Conference</h3>${east?order.East.map((id,i)=>summaryTeamRow(id,i,"East")).join(""):"Classement incomplet"}</div>
+     </div></div>
+     <div class="summary-awards-block"><div class="summary-section-title">Awards</div><div class="summary-awards">${awards}</div></div>
+     <div class="summary-footer">Page 2 · Classements de saison régulière et lauréats</div>
+   </div>`;
+ summary.style.display="block";
+ summary.scrollIntoView({behavior:"smooth"});
+}
+function printSummary(){
+ showSummary();
+ setTimeout(()=>window.print(),120);
+}
+
+async function shareApp(){
+ const shareData={title:"NBA Predictions 2026–27",text:"🏀 NBA Predictions 2026–27 — construis ton classement, tes Playoffs et tes Awards.",url:location.href};
+ if(navigator.share){try{await navigator.share(shareData);return;}catch(e){}}
+ try{await navigator.clipboard.writeText(location.href);alert("Le lien de la page a été copié.");}catch(e){alert("Pour partager l'outil, envoie simplement le fichier HTML à ton contact.");}
+}
+async function shareSummary(){
+ showSummary();
+ const who=(document.getElementById("participantName")?.value||"Ma prédiction").trim();
+ const text=`🏀 NBA Predictions 2026–27 — ${who}`;
+ if(navigator.share){try{await navigator.share({title:"Ma prédiction NBA 2026–27",text});return;}catch(e){}}
+ try{await navigator.clipboard.writeText(text);alert("Le titre de votre synthèse a été copié. Pour partager le document complet, utilisez Imprimer / Enregistrer en PDF.");}catch(e){alert("Utilisez Imprimer / Enregistrer en PDF pour partager votre synthèse.");}
+}
+
+function resetAll(){
+ if(!confirm("Réinitialiser toutes vos prédictions, vos Awards et votre nom ?"))return;
+ order={East:Array(15).fill(null),West:Array(15).fill(null)};
+ playoffSeeds={East:[],West:[]};playinWinners={East:{seven:null,eight:null,q1:null,q2:null,q3:null},West:{seven:null,eight:null,q1:null,q2:null,q3:null}};seriesState={};awardsState={};selectedTeam={West:null,East:null};
+ document.getElementById("participantName").value="";
+ renderAll();window.scrollTo({top:0,behavior:"smooth"});
+}
+renderAll();
+renderAwards();
+loadAwardDatabaseOnStart();
+</script>
+</body>
+</html>
