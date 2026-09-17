@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NBA Predictions 2026–27 · V2.8.2</title>
+<title>NBA Predictions 2026–27 · V2.9</title>
 <style>
 :root{
   --bg:#07111f; --panel:#0d1b2d; --panel2:#10243a; --line:#203751;
@@ -284,7 +284,7 @@ h1{font-size:clamp(34px,5vw,64px);margin:8px 0 4px;letter-spacing:-.04em}
     <div id="summary" class="summary"></div>
   </section>
 
-  <div class="footer">NBA Predictions 2026–27 · V2.8.2 · Créé par Thibault · Les franchises sont à glisser depuis les réserves vers les 15 slots. · Les logos sont chargés depuis le CDN ESPN. Les joueurs sont chargés depuis les rosters ESPN au démarrage, avec une base locale de secours.</div>
+  <div class="footer">NBA Predictions 2026–27 · V2.9 · Créé par Thibault · Les franchises sont à glisser depuis les réserves vers les 15 slots. · Les logos sont chargés depuis le CDN ESPN. Les joueurs sont chargés depuis les rosters ESPN au démarrage, avec une base locale de secours.</div>
 </div>
 
 <script>
@@ -735,11 +735,20 @@ async function loadPlayerDatabase(){
    document.querySelectorAll(".award-status").forEach(el=>el.textContent="Base locale de secours · recherche limitée");
  }
 }
+function awardConference(id){
+ if(id==="WCFMVP") return "West";
+ if(id==="ECFMVP") return "East";
+ return null;
+}
 function playerSuggestions(id,query){
  const q=normalizeText(query);
  if(q.length<2)return [];
  const source=playerDB.length?playerDB:fallbackPlayerDB();
- return source.filter(p=>normalizeText(p.name).includes(q)).slice(0,8);
+ const requiredConf=awardConference(id);
+ return source
+   .filter(p=>normalizeText(p.name).includes(q))
+   .filter(p=>!requiredConf || (p.team && T[p.team]?.conf===requiredConf))
+   .slice(0,8);
 }
 function handlePlayerInput(id,value){
  awardsState[id]=awardsState[id]||{player:"",team:"",playerId:""};
@@ -759,6 +768,11 @@ function choosePlayer(awardId,playerId){
  const source=playerDB.length?playerDB:fallbackPlayerDB();
  const p=source.find(x=>String(x.id)===String(playerId));
  if(!p)return;
+ const requiredConf=awardConference(awardId);
+ if(requiredConf && (!p.team || T[p.team]?.conf!==requiredConf)){
+   alert(`Ce trophée est réservé aux joueurs de la conférence ${requiredConf==="West"?"Ouest":"Est"}.`);
+   return;
+ }
  awardsState[awardId]={player:p.name,team:p.team||"",playerId:p.id,photo:p.photo||""};
  renderAwards();
 }
@@ -885,12 +899,84 @@ async function shareApp(){
  if(navigator.share){try{await navigator.share(shareData);return;}catch(e){}}
  try{await navigator.clipboard.writeText(location.href);alert("Le lien de la page a été copié.");}catch(e){alert("Pour partager l'outil, envoie simplement le fichier HTML à ton contact.");}
 }
+function buildShareSummaryText(){
+ const who=(document.getElementById("participantName")?.value||"Ma prédiction").trim();
+ const lines=[];
+ const confLabel=c=>c==="West"?"OUEST":"EST";
+ const awardLabel={
+   MVP:"MVP",DPOY:"DPOY",ROY:"Rookie of the Year","6MOY":"Sixth Man",MIP:"Most Improved",
+   ECFMVP:"MVP Finales Est",WCFMVP:"MVP Finales Ouest",FMVP:"MVP des Finals"
+ };
+
+ lines.push(`🏀 NBA PREDICTIONS 2026–27 — ${who}`);
+ lines.push("");
+ lines.push("📊 SAISON RÉGULIÈRE");
+ for(const conf of ["West","East"]){
+   lines.push("");
+   lines.push(`🏀 ${confLabel(conf)}`);
+   (order[conf]||[]).forEach((id,i)=>{ if(id) lines.push(`${i+1}. ${name(id)}`); });
+ }
+
+ lines.push("");
+ lines.push("🔥 PLAY-IN");
+ for(const conf of ["West","East"]){
+   const o=order[conf]||[], st=playinWinners[conf]||{};
+   lines.push(`${confLabel(conf)} :`);
+   lines.push(`7/8 : ${o[6]?name(o[6]):"—"} vs ${o[7]?name(o[7]):"—"} → ${st.q1?name(st.q1):"—"}`);
+   lines.push(`9/10 : ${o[8]?name(o[8]):"—"} vs ${o[9]?name(o[9]):"—"} → ${st.q2?name(st.q2):"—"}`);
+   lines.push(`Dernier match → ${st.q3?name(st.q3):"—"}`);
+ }
+
+ lines.push("");
+ lines.push("🏆 PLAYOFFS");
+ const roundNames={
+   W1:"Ouest · 1er tour",W2:"Ouest · 1er tour",W3:"Ouest · 1er tour",W4:"Ouest · 1er tour",
+   W5:"Ouest · Demi-finales",W6:"Ouest · Demi-finales",W7:"Ouest · Finale de conférence",
+   E1:"Est · 1er tour",E2:"Est · 1er tour",E3:"Est · 1er tour",E4:"Est · 1er tour",
+   E5:"Est · Demi-finales",E6:"Est · Demi-finales",E7:"Est · Finale de conférence",
+   NBA:"NBA Finals"
+ };
+ for(const sid of ["W1","W2","W3","W4","W5","W6","W7","E1","E2","E3","E4","E5","E6","E7","NBA"]){
+   const s=seriesState[sid];
+   if(!s || (!s.a && !s.b)) continue;
+   const a=s.a?name(s.a):"À déterminer";
+   const b=s.b?name(s.b):"À déterminer";
+   lines.push(`${roundNames[sid]||sid} : ${a} ${s.sa}-${s.sb} ${b}${s.winner?` → ${name(s.winner)}`:""}`);
+ }
+ if(seriesState.NBA?.winner) lines.push(`🏆 Champion NBA : ${name(seriesState.NBA.winner)}`);
+
+ lines.push("");
+ lines.push("⭐ AWARDS");
+ for(const [id,title] of awardDefs){
+   const a=awardsState[id]||{};
+   lines.push(`${awardLabel[id]||title} : ${a.player||"Non renseigné"}${a.team?` (${name(a.team)})`:""}`);
+ }
+ lines.push("");
+ lines.push("🔗 Outil : " + location.href);
+ return lines.join("\n");
+}
+
 async function shareSummary(){
  showSummary();
  const who=(document.getElementById("participantName")?.value||"Ma prédiction").trim();
- const text=`🏀 NBA Predictions 2026–27 — ${who}`;
- if(navigator.share){try{await navigator.share({title:"Ma prédiction NBA 2026–27",text});return;}catch(e){}}
- try{await navigator.clipboard.writeText(text);alert("Le titre de votre synthèse a été copié. Pour partager le document complet, utilisez Imprimer / Enregistrer en PDF.");}catch(e){alert("Utilisez Imprimer / Enregistrer en PDF pour partager votre synthèse.");}
+ const text=buildShareSummaryText();
+ const shareData={title:`Ma prédiction NBA 2026–27 — ${who}`,text,url:location.href};
+
+ if(navigator.share){
+   try{
+     await navigator.share(shareData);
+     return;
+   }catch(e){
+     if(e?.name==="AbortError") return;
+   }
+ }
+ try{
+   await navigator.clipboard.writeText(text);
+   alert("La synthèse complète a été copiée. Vous pouvez maintenant la coller dans un mail, Messenger ou une autre application.");
+ }catch(e){
+   const mailto=`mailto:?subject=${encodeURIComponent(`Ma prédiction NBA 2026–27 — ${who}`)}&body=${encodeURIComponent(text)}`;
+   window.location.href=mailto;
+ }
 }
 
 function resetAll(){
